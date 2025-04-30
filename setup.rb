@@ -58,10 +58,10 @@ end
 
 def popula_alunos
   lista = [
-    { nome: 'João Silva',     email: 'joao.silva@example.com' },
-    { nome: 'Maria Oliveira', email: 'maria.oliveira@example.com' },
-    { nome: 'Pedro Santos',   email: 'pedro.santos@example.com' },
-    { nome: 'Ana Souza',      email: 'ana.souza@example.com' }
+    { nome: 'João',     email: 'joao@example.com' },
+    { nome: 'Maria', email: 'maria@example.com' },
+    { nome: 'Pedro',   email: 'pedro@example.com' },
+    { nome: 'Ana',      email: 'ana@example.com' }
   ]
   lista.each { |attrs| Aluno.create!(attrs) }
 end
