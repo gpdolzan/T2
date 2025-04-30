@@ -1,8 +1,10 @@
-# interface_trabalho2.rb
-
 # Gabriel Pimentel Dolzan - GRR20209948
 $:.push './'
-require 'setup.rb'
+require_relative 'setup_trabalho2'
+require_relative 'modelos/aluno'
+require_relative 'modelos/grr'
+require_relative 'modelos/disciplina'
+require_relative 'modelos/departamento'
 
 # Exibe a lista de comandos disponíveis
 def printa_comandos
@@ -66,7 +68,7 @@ def insere_in(tabela, atributos)
     obj.save!
 
   else
-    puts "Tabela não reconhecida: \#{tabela}"
+    puts "Tabela não reconhecida: #{tabela}"
   end
 end
 
@@ -74,21 +76,29 @@ end
 def lista_from(tabela)
   case tabela.upcase
   when 'ALUNO', 'ALUNOS'
-    Aluno.all.each { |a| puts "id:\#{a.id}, nome:\#{a.nome}, email:\#{a.email}" }
+    Aluno.all.each do |a|
+      puts "id:#{a.id}, nome:#{a.nome}, email:#{a.email}"
+    end
   when 'GRR', 'GRRS'
-    Grr.all.each   { |g| puts "id:\#{g.id}, numero:\#{g.numero}, aluno_id:\#{g.aluno_id}" }
+    Grr.all.each do |g|
+      puts "id:#{g.id}, numero:#{g.numero}, aluno_id:#{g.aluno_id}"
+    end
   when 'DISCIPLINA', 'DISCIPLINAS'
-    Disciplina.all.each { |d| puts "id:\#{d.id}, nome:\#{d.nome}, codigo:\#{d.codigo}, aluno_id:\#{d.aluno_id}" }
+    Disciplina.all.each do |d|
+      puts "id:#{d.id}, nome:#{d.nome}, codigo:#{d.codigo}, aluno_id:#{d.aluno_id}"
+    end
   when 'DEPARTAMENTO', 'DEPARTAMENTOS'
-    Departamento.all.each { |d| puts "id:\#{d.id}, nome:\#{d.nome}" }
+    Departamento.all.each do |d|
+      puts "id:#{d.id}, nome:#{d.nome}"
+    end
   when 'DEP_DISC', 'DEPARTAMENTOS_DISCIPLINAS', 'LISTA_DEP_DISC'
     Departamento.all.each do |dep|
       dep.disciplinas.each do |disc|
-        puts "dept_id:\#{dep.id} (\#{dep.nome}), disc_id:\#{disc.id} (\#{disc.nome})"
+        puts "dept_id:#{dep.id} (#{dep.nome}), disc_id:#{disc.id} (#{disc.nome})"
       end
     end
   else
-    puts "Tabela não reconhecida: \#{tabela}"
+    puts "Tabela não reconhecida: #{tabela}"
   end
 end
 
@@ -116,7 +126,7 @@ def exclui_from(tabela, cond)
       Departamento.find_by(id: id)&.destroy
     end
   else
-    puts "Tabela não reconhecida: \#{tabela}"
+    puts "Tabela não reconhecida: #{tabela}"
   end
 end
 
@@ -181,7 +191,7 @@ def altera_from(tabela, atributos)
       obj.save!
     end
   else
-    puts "Tabela não reconhecida: \#{tabela}"
+    puts "Tabela não reconhecida: #{tabela}"
   end
 end
 
@@ -195,7 +205,7 @@ def associa_dep_disc(attrs)
   end
   if dept && disc
     dept.disciplinas << disc
-    puts "Associado departamento \#{dept.id} -> disciplina \#{disc.id}"
+    puts "Associado departamento #{dept.id} -> disciplina #{disc.id}"
   else
     puts 'Erro na associação: ids inválidos.'
   end
@@ -227,23 +237,4 @@ loop do
     end
   when 'EXCLUI'
     if args.size==3
-      exclui_from(args[1], args[2])
-    else
-      puts 'Uso: exclui <tabela> <condição>'
-    end
-  when 'ALTERA'
-    if args.size>=3
-      altera_from(args[1], args[2..])
-    else
-      puts 'Uso: altera <tabela> { atributo=valor ... }'
-    end
-  when 'ASSOCIA_DEP_DISC'
-    if args.size>=2
-      associa_dep_disc(args[1..])
-    else
-      puts 'Uso: associa_dep_disc dept_id=<id> disciplina_id=<id>'
-    end
-  else
-    puts "Comando desconhecido: \#{cmd}"
-  end
-end
+      exclui_from
