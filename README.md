@@ -4,13 +4,13 @@ Criado por Gabriel Pimentel Dolzan - GRR20209948
 
 ## Visão Geral
 
-Esse projeto utiliza o ActiveRecord para criar e manipular um BDSQLite, esse banco criado possui os seguintes relacionamentos:
+Esse projeto utiliza o ActiveRecord para criar e manipular um BD SQLite, esse banco criado possui os seguintes relacionamentos:
 
 > 1.  Um para Um: 1 Aluno -> 1 GRR
 
 > 2.  Um para Muitos: 1 Aluno -> n Disciplina
 
-> 3.  Muitos para Muitos: n Disciplinas -> n Departamentos
+> 3.  Muitos para Muitos: m Disciplinas -> n Departamentos
 
 Com base nas relações acima, temos as seguintes tabelas:
 
@@ -23,4 +23,28 @@ Também temos os seguintes comandos:
 
 - help
 - tabelas
-- q
+- quit
+- exclui
+- insere
+- altera
+- lista
+
+Para não perder muito tempo aqui, basta saber que cada um destes comandos e sua funcionalidade estão sendo explicado dentro do próprio programa.
+
+### Associação M N (Muitos para Muitos)
+
+No programa pode consultar essa associação a parte com o comando:
+
+- lista dep_disc
+
+Para criar associação o seguinte comando funciona:
+
+- associa_dep_disc dept_id=id disciplina_id=id
+
+Como falei acima, basta ler a documentação e do programa em execução que fará sentido como funciona a utilização do programa.
+
+## Como Rodar
+
+Para rodar o programa basta você rodar o script `inicial.sh`, esse script inicia o BD em seu estado padrão (hard-coded) toda vez que você rodar ele. Só inicie o programa utilizando esse arquivo inicial, caso contrário o programa não irá funcionar.
+
+Qualquer dúvida relacionada ao funcionamento do programa, pode mandar um e-mail para mim (gpd20@inf.ufpr.br) que eu respondo o mais rápido possível.

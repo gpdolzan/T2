@@ -4,10 +4,10 @@
 
 $:.push './'
 require 'setup.rb'
-require 'modelos/aluno'
-require 'modelos/grr'
-require 'modelos/disciplina'
-require 'modelos/departamento'
+require 'modelos/aluno.rb'
+require 'modelos/grr.rb'
+require 'modelos/disciplina.rb'
+require 'modelos/departamento.rb'
 
 # Exibe a lista de comandos disponíveis
 def printa_comandos
@@ -23,7 +23,7 @@ def printa_comandos
 
     Associação Departamento-Disciplina:
       associa_dep_disc dept_id=<id> disciplina_id=<id>   -> Cria vínculo M-N
-      lista_dep_disc                                     -> Lista todas as associações
+      lista dep_disc                                     -> Lista todas as associações
   CMD
 end
 

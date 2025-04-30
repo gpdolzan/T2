@@ -124,7 +124,7 @@ end
 def inicia_ambiente
   ActiveRecord::Base.establish_connection(
     adapter:  'sqlite3',
-    database: 'Tabelas.sqlite3'
+    database: 'BD.sqlite3'
   )
 
   inicia_alunos
