@@ -1,10 +1,10 @@
 # Gabriel Pimentel Dolzan - GRR20209948
 $:.push './'
-require_relative 'setup_trabalho2'
-require_relative 'modelos/aluno'
-require_relative 'modelos/grr'
-require_relative 'modelos/disciplina'
-require_relative 'modelos/departamento'
+require 'setup.rb'
+require 'modelos/aluno'
+require 'modelos/grr'
+require 'modelos/disciplina'
+require 'modelos/departamento'
 
 # Exibe a lista de comandos disponíveis
 def printa_comandos
@@ -41,9 +41,7 @@ def insere_in(tabela, atributos)
     atributos.each do |attr|
       chave, valor = attr.split('=',2)
       obj.numero = valor if chave.downcase == 'numero'
-      if chave.downcase == 'aluno_id'
-        obj.aluno = Aluno.find_by(id: valor.to_i)
-      end
+      obj.aluno  = Aluno.find_by(id: valor.to_i) if chave.downcase == 'aluno_id'
     end
     obj.save!
 
@@ -53,9 +51,7 @@ def insere_in(tabela, atributos)
       chave, valor = attr.split('=',2)
       obj.nome      = valor if chave.downcase == 'nome'
       obj.codigo    = valor if chave.downcase == 'codigo'
-      if chave.downcase == 'aluno_id'
-        obj.aluno = Aluno.find_by(id: valor.to_i)
-      end
+      obj.aluno     = Aluno.find_by(id: valor.to_i) if chave.downcase == 'aluno_id'
     end
     obj.save!
 
@@ -76,26 +72,16 @@ end
 def lista_from(tabela)
   case tabela.upcase
   when 'ALUNO', 'ALUNOS'
-    Aluno.all.each do |a|
-      puts "id:#{a.id}, nome:#{a.nome}, email:#{a.email}"
-    end
+    Aluno.all.each { |a| puts "id:#{a.id}, nome:#{a.nome}, email:#{a.email}" }
   when 'GRR', 'GRRS'
-    Grr.all.each do |g|
-      puts "id:#{g.id}, numero:#{g.numero}, aluno_id:#{g.aluno_id}"
-    end
+    Grr.all.each   { |g| puts "id:#{g.id}, numero:#{g.numero}, aluno_id:#{g.aluno_id}" }
   when 'DISCIPLINA', 'DISCIPLINAS'
-    Disciplina.all.each do |d|
-      puts "id:#{d.id}, nome:#{d.nome}, codigo:#{d.codigo}, aluno_id:#{d.aluno_id}"
-    end
+    Disciplina.all.each { |d| puts "id:#{d.id}, nome:#{d.nome}, codigo:#{d.codigo}, aluno_id:#{d.aluno_id}" }
   when 'DEPARTAMENTO', 'DEPARTAMENTOS'
-    Departamento.all.each do |d|
-      puts "id:#{d.id}, nome:#{d.nome}"
-    end
+    Departamento.all.each { |d| puts "id:#{d.id}, nome:#{d.nome}" }
   when 'DEP_DISC', 'DEPARTAMENTOS_DISCIPLINAS', 'LISTA_DEP_DISC'
     Departamento.all.each do |dep|
-      dep.disciplinas.each do |disc|
-        puts "dept_id:#{dep.id} (#{dep.nome}), disc_id:#{disc.id} (#{disc.nome})"
-      end
+      dep.disciplinas.each { |disc| puts "dept_id:#{dep.id} (#{dep.nome}), disc_id:#{disc.id} (#{disc.nome})" }
     end
   else
     puts "Tabela não reconhecida: #{tabela}"
@@ -135,10 +121,7 @@ def altera_from(tabela, atributos)
   case tabela.upcase
   when 'ALUNO', 'ALUNOS'
     obj = nil
-    atributos.each do |attr|
-      chave, valor = attr.split('=',2)
-      obj = Aluno.find_by(id: valor.to_i) if chave.downcase=='id'
-    end
+    atributos.each { |attr| obj = Aluno.find_by(id: attr.split('=',2)[1].to_i) if attr.start_with?('id=') }
     if obj
       atributos.each do |attr|
         chave, valor = attr.split('=',2)
@@ -149,26 +132,18 @@ def altera_from(tabela, atributos)
     end
   when 'GRR', 'GRRS'
     obj = nil
-    atributos.each do |attr|
-      chave, valor = attr.split('=',2)
-      obj = Grr.find_by(id: valor.to_i) if chave.downcase=='id'
-    end
+    atributos.each { |attr| obj = Grr.find_by(id: attr.split('=',2)[1].to_i) if attr.start_with?('id=') }
     if obj
       atributos.each do |attr|
         chave, valor = attr.split('=',2)
         obj.numero = valor if chave.downcase=='numero'
-        if chave.downcase=='aluno_id'
-          obj.aluno = Aluno.find_by(id: valor.to_i)
-        end
+        obj.aluno  = Aluno.find_by(id: valor.to_i) if chave.downcase=='aluno_id'
       end
       obj.save!
     end
   when 'DISCIPLINA', 'DISCIPLINAS'
     obj = nil
-    atributos.each do |attr|
-      chave, valor = attr.split('=',2)
-      obj = Disciplina.find_by(id: valor.to_i) if chave.downcase=='id'
-    end
+    atributos.each { |attr| obj = Disciplina.find_by(id: attr.split('=',2)[1].to_i) if attr.start_with?('id=') }
     if obj
       atributos.each do |attr|
         chave, valor = attr.split('=',2)
@@ -179,10 +154,7 @@ def altera_from(tabela, atributos)
     end
   when 'DEPARTAMENTO', 'DEPARTAMENTOS'
     obj = nil
-    atributos.each do |attr|
-      chave, valor = attr.split('=',2)
-      obj = Departamento.find_by(id: valor.to_i) if chave.downcase=='id'
-    end
+    atributos.each { |attr| obj = Departamento.find_by(id: attr.split('=',2)[1].to_i) if attr.start_with?('id=') }
     if obj
       atributos.each do |attr|
         chave, valor = attr.split('=',2)
@@ -221,20 +193,13 @@ loop do
   cmd = args[0].upcase
 
   case cmd
-  when 'HELP'   then printa_comandos
-  when 'TABELAS' then puts 'Aluno, Grr, Disciplina, Departamento, Dep_Disc'
-  when 'INSERE'
-    if args.size>=3
-      insere_in(args[1], args[2..])
-    else
-      puts 'Uso: insere <tabela> { atributo=valor ... }'
-    end
-  when 'LISTA'
-    if args.size>=2
-      lista_from(args[1])
-    else
-      puts 'Uso: lista <tabela>'
-    end
-  when 'EXCLUI'
-    if args.size==3
-      exclui_from
+  when 'HELP'         then printa_comandos
+  when 'TABELAS'      then puts 'Aluno, Grr, Disciplina, Departamento, Dep_Disc'
+  when 'INSERE'       then args.size>=3 ? insere_in(args[1], args[2..]) : puts('Uso: insere <tabela> { atributo=valor ... }')
+  when 'LISTA'        then args.size>=2 ? lista_from(args[1]) : puts('Uso: lista <tabela>')
+  when 'EXCLUI'       then args.size==3? exclui_from(args[1], args[2]) : puts('Uso: exclui <tabela> <condição>')
+  when 'ALTERA'       then args.size>=3? altera_from(args[1], args[2..]) : puts('Uso: altera <tabela> { atributo=valor ... }')
+  when 'ASSOCIA_DEP_DISC' then args.size>=2? associa_dep_disc(args[1..]) : puts('Uso: associa_dep_disc dept_id=<id> disciplina_id=<id>')
+  else                   puts "Comando desconhecido: #{cmd}"
+  end
+end
