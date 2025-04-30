@@ -1,4 +1,7 @@
+# Trabalho 2: banco de dados usando ActiveRecord
+
 # Gabriel Pimentel Dolzan - GRR20209948
+
 $:.push './'
 require 'rubygems'
 require 'active_record'

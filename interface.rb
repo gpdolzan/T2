@@ -1,4 +1,7 @@
+# Trabalho 2: banco de dados usando ActiveRecord
+
 # Gabriel Pimentel Dolzan - GRR20209948
+
 $:.push './'
 require 'setup.rb'
 require 'modelos/aluno'
@@ -184,15 +187,15 @@ def associa_dep_disc(attrs)
 end
 
 # Programa principal
-puts 'Digite "help" para ver comandos. "q" sai.'
+puts 'Digite "help" para ver comandos. "quit" sai.'
 loop do
   print '> '
   input = gets&.strip
-  break if input.nil? || input.upcase=='Q'
   args = input.split
   cmd = args[0].upcase
 
   case cmd
+  when 'QUIT'         then break
   when 'HELP'         then printa_comandos
   when 'TABELAS'      then puts 'Aluno, Grr, Disciplina, Departamento, Dep_Disc'
   when 'INSERE'       then args.size>=3 ? insere_in(args[1], args[2..]) : puts('Uso: insere <tabela> { atributo=valor ... }')
