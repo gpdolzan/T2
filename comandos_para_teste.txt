@@ -1,0 +1,30 @@
+# Comandos de Depuração considerando dados já no BD (hard‑coded)
+
+# 1. Listar dados originais para identificar IDs
+lista Aluno
+lista Grr
+lista Disciplina
+lista Departamento
+lista dep_disc
+
+# 2. Atualizações em registros existentes
+altera Aluno id=1 nome=Kleber email=kleber@example.com
+altera Grr id=1 numero=GRR20259999
+altera Disciplina id=1 nome=Algebra codigo=ALG101
+
+# 3. Inserção em tabelas
+insere Aluno nome=Joaquim email=joaquimexample.com
+insere Grr numero=GRR20250005 aluno_id=5
+insere Disciplina nome=Grafos codigo=GRF107 aluno_id=5
+insere Departamento nome=DeptGrafos
+
+# 4. Teste de associação M–N em dados existentes
+associa_dep_disc dept_id=4 disciplina_id=7
+
+# 5. Testes de exclusão em cascata
+exclui Aluno id=5
+
+# 6. Listar dados dados atualizados para verificar modificações
+lista Aluno
+lista Grr
+lista Disciplina

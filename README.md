@@ -53,6 +53,12 @@ O arquivo runner.rb é o arquivo principal do programa. Ele exibe a lista de com
 
 ## Como Rodar
 
-Para rodar o programa basta você rodar o script `inicial.sh`, esse script inicia o BD em seu estado padrão (hard-coded) toda vez que você rodar ele. Só inicie o programa utilizando esse arquivo inicial, caso contrário o programa não irá funcionar.
+Para rodar o programa basta você rodar o script `inicia_programa.sh`, esse script inicia o BD em seu estado padrão (hard-coded) toda vez que você rodar ele. Só inicie o programa utilizando esse arquivo inicial, caso contrário o programa não irá funcionar.
+
+## Depuração Rápida do Programa
+
+Para testar rapidamente use o arquivo `comandos_para_teste.txt`, nesse arquivo tem uma sequência de comandos que podem ser executados para testar as funcionalidades do programa e do ActiveRecord.
+
+## Finalizando
 
 Qualquer dúvida relacionada ao funcionamento do programa, pode mandar um e-mail para mim (gpd20@inf.ufpr.br) que eu respondo o mais rápido possível.
