@@ -43,6 +43,14 @@ Para criar associação o seguinte comando funciona:
 
 Como falei acima, basta ler a documentação e do programa em execução que fará sentido como funciona a utilização do programa.
 
+## Explicação do Código
+
+Dentro da pasta modelos tem os códigos dos modelos do BD que estou criando. Você pode ler ali em cima sobre os relacionamentos dessas tabelas acima.
+
+O arquivo setup.rb é o arquivo que inicia e popula o DB.
+
+O arquivo runner.rb é o arquivo principal do programa. Ele exibe a lista de comandos disponíveis e está constantemente em um loop de execução de comandos, seja para manipular o BD ou apenas listar os itens. Esse loop é quebrado quando o usuário digita 'exit' e o programa finaliza.
+
 ## Como Rodar
 
 Para rodar o programa basta você rodar o script `inicial.sh`, esse script inicia o BD em seu estado padrão (hard-coded) toda vez que você rodar ele. Só inicie o programa utilizando esse arquivo inicial, caso contrário o programa não irá funcionar.

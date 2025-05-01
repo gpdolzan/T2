@@ -8,4 +8,4 @@ if [ -f "BD.sqlite3" ]; then
 fi
 
 # Run the Ruby script
-ruby interface.rb
+ruby runner.rb

@@ -10,16 +10,18 @@ require 'modelos/disciplina.rb'
 require 'modelos/departamento.rb'
 
 # Exibe a lista de comandos disponíveis
-def printa_comandos
+def commands
   puts <<~CMD
     Comandos:
-      help                                  -> Lista comandos
+      ajuda                                 -> Lista comandos
       tabelas                               -> Lista tabelas disponíveis
-      q                                     -> Sai do programa
+      exit                                  -> Sai do programa
 
-    Operações em tabelas:
-      <operação> <tabela> { atributo=valor ... }
-        insere, lista, exclui, altera
+    Exemplo de operações em tabelas:
+      insere <tabela> { atributo=valor ... }
+      lista <tabela> { atributo=valor ... }
+      exclui <tabela> { atributo=valor ... }
+      altera <tabela> { atributo=valor ... }
 
     Associação Departamento-Disciplina:
       associa_dep_disc dept_id=<id> disciplina_id=<id>   -> Cria vínculo M-N
@@ -195,8 +197,8 @@ loop do
   cmd = args[0].upcase
 
   case cmd
-  when 'QUIT'         then break
-  when 'HELP'         then printa_comandos
+  when 'EXIT'         then break
+  when 'AJUDA'        then commands
   when 'TABELAS'      then puts 'Aluno, Grr, Disciplina, Departamento, Dep_Disc'
   when 'INSERE'       then args.size>=3 ? insere_in(args[1], args[2..]) : puts('Uso: insere <tabela> { atributo=valor ... }')
   when 'LISTA'        then args.size>=2 ? lista_from(args[1]) : puts('Uso: lista <tabela>')
