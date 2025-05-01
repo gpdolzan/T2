@@ -1,5 +1,5 @@
+#!/usr/bin/env ruby
 # Trabalho 2: banco de dados usando ActiveRecord
-
 # Gabriel Pimentel Dolzan - GRR20209948
 
 $:.push './'
@@ -9,202 +9,166 @@ require 'modelos/grr.rb'
 require 'modelos/disciplina.rb'
 require 'modelos/departamento.rb'
 
-# Exibe a lista de comandos disponíveis
+# Mapeamento dinâmico de nomes de tabelas para classes
+MODELS = {
+  'ALUNO'       => Aluno,
+  'GRR'         => Grr,
+  'DISCIPLINA'  => Disciplina,
+  'DEPARTAMENTO'=> Departamento
+}.freeze
+
+# Exibe comandos disponíveis
 def commands
   puts <<~CMD
     Comandos:
-      ajuda                                 -> Lista comandos
-      tabelas                               -> Lista tabelas disponíveis
-      exit                                  -> Sai do programa
+      ajuda                          -> Lista comandos
+      tabelas                        -> Lista tabelas disponíveis
+      sair                           -> Sai do programa
 
-    Exemplo de operações em tabelas:
+    Operações em tabelas:
       insere <tabela> { atributo=valor ... }
-      lista <tabela> { atributo=valor ... }
+      lista  <tabela> { atributo=valor ... }
       exclui <tabela> { atributo=valor ... }
       altera <tabela> { atributo=valor ... }
 
     Associação Departamento-Disciplina:
-      associa_dep_disc dept_id=<id> disciplina_id=<id>   -> Cria vínculo M-N
-      lista dep_disc                                     -> Lista todas as associações
+      associa_dep_disc dept_id=<id> disciplina_id=<id>
+      lista dep_disc
   CMD
 end
 
-# Insere um registro na tabela especificada
-def insere_in(tabela, atributos)
-  case tabela.upcase
-  when 'ALUNO', 'ALUNOS'
-    obj = Aluno.new
-    atributos.each do |attr|
-      chave, valor = attr.split('=',2)
-      obj.nome  = valor if chave.downcase == 'nome'
-      obj.email = valor if chave.downcase == 'email'
-    end
-    obj.save!
-
-  when 'GRR', 'GRRS'
-    obj = Grr.new
-    atributos.each do |attr|
-      chave, valor = attr.split('=',2)
-      obj.numero = valor if chave.downcase == 'numero'
-      obj.aluno  = Aluno.find_by(id: valor.to_i) if chave.downcase == 'aluno_id'
-    end
-    obj.save!
-
-  when 'DISCIPLINA', 'DISCIPLINAS'
-    obj = Disciplina.new
-    atributos.each do |attr|
-      chave, valor = attr.split('=',2)
-      obj.nome      = valor if chave.downcase == 'nome'
-      obj.codigo    = valor if chave.downcase == 'codigo'
-      obj.aluno     = Aluno.find_by(id: valor.to_i) if chave.downcase == 'aluno_id'
-    end
-    obj.save!
-
-  when 'DEPARTAMENTO', 'DEPARTAMENTOS'
-    obj = Departamento.new
-    atributos.each do |attr|
-      chave, valor = attr.split('=',2)
-      obj.nome = valor if chave.downcase == 'nome'
-    end
-    obj.save!
-
-  else
-    puts "Tabela não reconhecida: #{tabela}"
-  end
+# Parseia array de strings "chave=valor" em hash de strings
+def parse_attrs(attrs)
+  attrs.map { |pair| k,v = pair.split('=',2); [k.downcase, v] }.to_h
 end
 
-# Lista registros da tabela
-def lista_from(tabela)
-  case tabela.upcase
-  when 'ALUNO', 'ALUNOS'
-    Aluno.all.each { |a| puts "id:#{a.id}, nome:#{a.nome}, email:#{a.email}" }
-  when 'GRR', 'GRRS'
-    Grr.all.each   { |g| puts "id:#{g.id}, numero:#{g.numero}, aluno_id:#{g.aluno_id}" }
-  when 'DISCIPLINA', 'DISCIPLINAS'
-    Disciplina.all.each { |d| puts "id:#{d.id}, nome:#{d.nome}, codigo:#{d.codigo}, aluno_id:#{d.aluno_id}" }
-  when 'DEPARTAMENTO', 'DEPARTAMENTOS'
-    Departamento.all.each { |d| puts "id:#{d.id}, nome:#{d.nome}" }
-  when 'DEP_DISC', 'DEPARTAMENTOS_DISCIPLINAS', 'LISTA_DEP_DISC'
+# Converte atributos de filtro para formato do ActiveRecord
+def parse_criteria(attrs)
+  parse_attrs(attrs)
+    .transform_keys(&:to_sym)
+    .transform_values { |v| v.match?(/^\d+$/) ? v.to_i : v }
+end
+
+# Insere um novo registro dinamicamente
+def generic_insere(tabela, attrs)
+  model = MODELS[tabela.upcase]
+  return puts "Tabela não reconhecida: #{tabela}" unless model
+
+  data, assoc_data = {}, {}
+  parse_attrs(attrs).each do |k,v|
+    if k.end_with?('_id')
+      assoc_data[k.chomp('_id')] = v.to_i
+    else
+      data[k.to_sym] = v
+    end
+  end
+
+  record = model.new(data)
+  assoc_data.each do |assoc, id|
+    if record.respond_to?("#{assoc}=")
+      assoc_class = MODELS[assoc.upcase]
+      record.public_send("#{assoc}=", assoc_class.find_by(id: id))
+    end
+  end
+
+  record.save!
+  puts "Inserido #{tabela} id=#{record.id}"
+end
+
+# Lista registros com/ou sem filtros
+def generic_lista(tabela, attrs)
+  if %w[DEP_DISC DEPARTAMENTOS_DISCIPLINAS LISTA_DEP_DISC].include?(tabela.upcase)
     Departamento.all.each do |dep|
       dep.disciplinas.each { |disc| puts "dept_id:#{dep.id} (#{dep.nome}), disc_id:#{disc.id} (#{disc.nome})" }
     end
-  else
-    puts "Tabela não reconhecida: #{tabela}"
+    return
+  end
+
+  model = MODELS[tabela.upcase]
+  return puts "Tabela não reconhecida: #{tabela}" unless model
+
+  records = attrs.empty? ? model.all : model.where(parse_criteria(attrs))
+  records.each do |r|
+    puts r.attributes.map { |k,v| "#{k}:#{v}" }.join(', ')
   end
 end
 
-# Exclui registros da tabela
-def exclui_from(tabela, cond)
-  case tabela.upcase
-  when 'ALUNO', 'ALUNOS'
-    if cond.start_with?('id=')
-      id = cond.split('=',2)[1].to_i
-      Aluno.find_by(id: id)&.destroy
-    end
-  when 'GRR', 'GRRS'
-    if cond.start_with?('id=')
-      id = cond.split('=',2)[1].to_i
-      Grr.find_by(id: id)&.destroy
-    end
-  when 'DISCIPLINA', 'DISCIPLINAS'
-    if cond.start_with?('id=')
-      id = cond.split('=',2)[1].to_i
-      Disciplina.find_by(id: id)&.destroy
-    end
-  when 'DEPARTAMENTO', 'DEPARTAMENTOS'
-    if cond.start_with?('id=')
-      id = cond.split('=',2)[1].to_i
-      Departamento.find_by(id: id)&.destroy
-    end
-  else
-    puts "Tabela não reconhecida: #{tabela}"
+# Exclui registros via condição
+def generic_exclui(tabela, attrs)
+  model = MODELS[tabela.upcase]
+  return puts "Tabela não reconhecida: #{tabela}" unless model
+
+  crit = parse_criteria(attrs)
+  if crit.empty?
+    puts 'Forneça condição válida para excluir.'
+    return
   end
+
+  count = model.where(crit).destroy_all.size
+  puts "Excluídos #{count} registro(s) de #{tabela}."
 end
 
-# Altera registros da tabela
-def altera_from(tabela, atributos)
-  case tabela.upcase
-  when 'ALUNO', 'ALUNOS'
-    obj = nil
-    atributos.each { |attr| obj = Aluno.find_by(id: attr.split('=',2)[1].to_i) if attr.start_with?('id=') }
-    if obj
-      atributos.each do |attr|
-        chave, valor = attr.split('=',2)
-        obj.nome  = valor if chave.downcase=='nome'
-        obj.email = valor if chave.downcase=='email'
-      end
-      obj.save!
+# Altera registro existente
+def generic_altera(tabela, attrs)
+  model = MODELS[tabela.upcase]
+  return puts "Tabela não reconhecida: #{tabela}" unless model
+
+  data = parse_attrs(attrs)
+  id = data.delete('id')&.to_i
+  return puts 'É necessário informar id=<valor>' unless id
+
+  record = model.find_by(id: id)
+  return puts "#{tabela} id=#{id} não encontrado." unless record
+
+  update_data, assoc_data = {}, {}
+  data.each do |k,v|
+    if k.end_with?('_id')
+      assoc_data[k.chomp('_id')] = v.to_i
+    else
+      update_data[k.to_sym] = v
     end
-  when 'GRR', 'GRRS'
-    obj = nil
-    atributos.each { |attr| obj = Grr.find_by(id: attr.split('=',2)[1].to_i) if attr.start_with?('id=') }
-    if obj
-      atributos.each do |attr|
-        chave, valor = attr.split('=',2)
-        obj.numero = valor if chave.downcase=='numero'
-        obj.aluno  = Aluno.find_by(id: valor.to_i) if chave.downcase=='aluno_id'
-      end
-      obj.save!
-    end
-  when 'DISCIPLINA', 'DISCIPLINAS'
-    obj = nil
-    atributos.each { |attr| obj = Disciplina.find_by(id: attr.split('=',2)[1].to_i) if attr.start_with?('id=') }
-    if obj
-      atributos.each do |attr|
-        chave, valor = attr.split('=',2)
-        obj.nome   = valor if chave.downcase=='nome'
-        obj.codigo = valor if chave.downcase=='codigo'
-      end
-      obj.save!
-    end
-  when 'DEPARTAMENTO', 'DEPARTAMENTOS'
-    obj = nil
-    atributos.each { |attr| obj = Departamento.find_by(id: attr.split('=',2)[1].to_i) if attr.start_with?('id=') }
-    if obj
-      atributos.each do |attr|
-        chave, valor = attr.split('=',2)
-        obj.nome = valor if chave.downcase=='nome'
-      end
-      obj.save!
-    end
-  else
-    puts "Tabela não reconhecida: #{tabela}"
   end
+
+  record.update!(update_data)
+  assoc_data.each do |assoc, id|
+    if record.respond_to?("#{assoc}=")
+      assoc_class = MODELS[assoc.upcase]
+      record.public_send("#{assoc}=", assoc_class.find_by(id: id))
+    end
+  end
+
+  puts "Alterado #{tabela} id=#{record.id}."
 end
 
-# Cria associação M-N entre departamento e disciplina
+# Associação M–N Departamento ↔ Disciplina
 def associa_dep_disc(attrs)
-  dept = nil; disc = nil
-  attrs.each do |attr|
-    chave, valor = attr.split('=',2)
-    dept = Departamento.find_by(id: valor.to_i)     if chave.downcase=='dept_id'
-    disc = Disciplina.find_by(id: valor.to_i)      if chave.downcase=='disciplina_id'
-  end
-  if dept && disc
-    dept.disciplinas << disc
-    puts "Associado departamento #{dept.id} -> disciplina #{disc.id}"
+  data = parse_attrs(attrs)
+  dep  = Departamento.find_by(id: data['dept_id'])
+  disc = Disciplina.find_by(id: data['disciplina_id'])
+  if dep && disc
+    dep.disciplinas << disc
+    puts "Associado departamento #{dep.id} -> disciplina #{disc.id}."
   else
     puts 'Erro na associação: ids inválidos.'
   end
 end
 
-# Programa principal
-puts 'Digite "ajuda" para ver comandos. "exit" sai.'
+# Loop principal de comandos
+puts 'Digite "ajuda" para comandos. "sair" sai.'
 loop do
   print '> '
-  input = gets&.strip
-  args = input.split
-  cmd = args[0].upcase
+  input = gets&.strip or break
+  parts = input.split
+  cmd   = parts[0]&.downcase
 
   case cmd
-  when 'EXIT'         then break
-  when 'AJUDA'        then commands
-  when 'TABELAS'      then puts 'Aluno, Grr, Disciplina, Departamento, Dep_Disc'
-  when 'INSERE'       then args.size>=3 ? insere_in(args[1], args[2..]) : puts('Uso: insere <tabela> { atributo=valor ... }')
-  when 'LISTA'        then args.size>=2 ? lista_from(args[1]) : puts('Uso: lista <tabela>')
-  when 'EXCLUI'       then args.size==3? exclui_from(args[1], args[2]) : puts('Uso: exclui <tabela> <condição>')
-  when 'ALTERA'       then args.size>=3? altera_from(args[1], args[2..]) : puts('Uso: altera <tabela> { atributo=valor ... }')
-  when 'ASSOCIA_DEP_DISC' then args.size>=2? associa_dep_disc(args[1..]) : puts('Uso: associa_dep_disc dept_id=<id> disciplina_id=<id>')
-  else                   puts "Comando desconhecido: #{cmd}"
-  end
+  when 'sair'            then break
+  when 'ajuda'           then commands
+  when 'tabelas'         then puts (MODELS.keys + ['Dep_Disc']).join(', ')
+  when 'insere'          then parts.size>=3 ? generic_insere(parts[1], parts[2..]) : puts('Uso: insere <tabela> { atributo=valor ... }')
+  when 'lista'           then parts.size>=2 ? generic_lista(parts[1], parts[2..]||[]) : puts('Uso: lista <tabela> { atributo=valor ... }')
+  when 'exclui'          then parts.size>=3 ? generic_exclui(parts[1], parts[2..]) : puts('Uso: exclui <tabela> { atributo=valor ... }')
+  when 'altera'          then parts.size>=3 ? generic_altera(parts[1], parts[2..]) : puts('Uso: altera <tabela> { atributo=valor ... }')
+  when 'associa_dep_disc' then parts.size>=2 ? associa_dep_disc(parts[1..])         : puts('Uso: associa_dep_disc dept_id=<id> disciplina_id=<id>')
+  else                        puts "Comando desconhecido: #{cmd}"   end
 end
