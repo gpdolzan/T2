@@ -29,7 +29,7 @@ Também temos os seguintes comandos:
 - altera
 - lista
 
-Para não perder muito tempo aqui, basta saber que cada um destes comandos e sua funcionalidade estão sendo explicado dentro do próprio programa.
+Utilize o comando `ajuda` para saber mais sobre a execução de cada comando.
 
 ### Associação M N (Muitos para Muitos)
 
@@ -41,7 +41,7 @@ Para criar associação o seguinte comando funciona:
 
 - associa_dep_disc dept_id=id disciplina_id=id
 
-Como falei acima, basta ler a documentação e do programa em execução que fará sentido como funciona a utilização do programa.
+Novamente, utilize o comando `ajuda` para saber mais sobre a execução.
 
 ## Explicação do Código
 
@@ -49,9 +49,9 @@ Dentro da pasta modelos tem os códigos dos modelos do BD que estou criando. Voc
 
 O arquivo setup.rb é o arquivo que inicia e popula o DB.
 
-O arquivo runner.rb é o arquivo principal do programa. Ele exibe a lista de comandos disponíveis e está constantemente em um loop de execução de comandos, seja para manipular o BD ou apenas listar os itens. Esse loop é quebrado quando o usuário digita 'exit' e o programa finaliza.
+O arquivo runner.rb é o arquivo principal do programa. Ele exibe a lista de comandos disponíveis e está constantemente em um loop de execução de comandos, seja para manipular o BD ou apenas listar os itens. Esse loop é quebrado quando o usuário digita `sair` e o programa finaliza.
 
-## Como Rodar
+## Como Rodar o Programa
 
 Para rodar o programa basta você rodar o script `inicia_programa.sh`, esse script inicia o BD em seu estado padrão (hard-coded) toda vez que você rodar ele. Só inicie o programa utilizando esse arquivo inicial, caso contrário o programa não irá funcionar.
 
