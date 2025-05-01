@@ -189,7 +189,7 @@ def associa_dep_disc(attrs)
 end
 
 # Programa principal
-puts 'Digite "help" para ver comandos. "exit" sai.'
+puts 'Digite "ajuda" para ver comandos. "exit" sai.'
 loop do
   print '> '
   input = gets&.strip
